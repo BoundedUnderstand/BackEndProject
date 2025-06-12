@@ -16,4 +16,11 @@
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<Content Include="Data\Subscriptions.csv">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+
 </Project>

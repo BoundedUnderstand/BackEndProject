@@ -10,12 +10,14 @@ namespace ApplicationCore.Models
     public class Subscription
     {
         [Key]
-        public int customerId { get; set; }
+        public int id { get; set; }
+        public int CustomerId { get; set; }
+        public Customer customer { get; set; }
         public DateTime createdDate { get; set; }
         
         public DateTime? canceledDate { get; set; }
         
-        public int subscriptionCost { get; set; }
+        public decimal subscriptionCost { get; set; }
 
         public string subscriptionInterval { get; set; } 
 

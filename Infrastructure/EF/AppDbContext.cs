@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +15,7 @@ namespace Infrastructure.EF
      public class AppDbContext : IdentityDbContext<UserEntity>
     {
         public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<Customer> Customers { get; set; }
         public AppDbContext(DbContextOptions options) : base(options)
         {
         }
@@ -25,11 +27,20 @@ namespace Infrastructure.EF
             {
                 foreach (var property in entityType.GetProperties())
                 {
-                    if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                    if (property.ClrType == typeof(DateTime))
                     {
-                        property.SetValueConverter(new ValueConverter<DateTime, DateTime>(
-                            v => DateTime.SpecifyKind(v, DateTimeKind.Utc),
-                            v => DateTime.SpecifyKind(v, DateTimeKind.Utc)));
+                        property.SetValueConverter(
+                            new ValueConverter<DateTime, DateTime>(
+                                v => DateTime.SpecifyKind(v, DateTimeKind.Utc),
+                                v => DateTime.SpecifyKind(v, DateTimeKind.Utc)));
+                    }
+
+                    if (property.ClrType == typeof(DateTime?))
+                    {
+                        property.SetValueConverter(
+                            new ValueConverter<DateTime?, DateTime?>(
+                                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v,
+                                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v));
                     }
                 }
             }
@@ -58,7 +69,12 @@ namespace Infrastructure.EF
                 UserEntityId = adminId,
                 CreatedAt = adminCreatedAt,
             });
-            
+            builder.Entity<Subscription>()
+            .HasOne(s => s.customer)
+            .WithMany(c => c.Subscriptions)
+            .HasForeignKey(s => s.CustomerId);
+
+
         }
     }
 

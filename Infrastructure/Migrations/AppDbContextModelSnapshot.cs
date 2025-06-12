@@ -22,7 +22,7 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ApplicationCore.Models.Subscription", b =>
+            modelBuilder.Entity("ApplicationCore.Models.Customer", b =>
                 {
                     b.Property<int>("customerId")
                         .ValueGeneratedOnAdd()
@@ -30,14 +30,30 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("customerId"));
 
+                    b.HasKey("customerId");
+
+                    b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Subscription", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("canceledDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("createdDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("subscriptionCost")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("subscriptionCost")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("subscriptionInterval")
                         .IsRequired()
@@ -46,7 +62,9 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("wassubscriptionPaid")
                         .HasColumnType("boolean");
 
-                    b.HasKey("customerId");
+                    b.HasKey("id");
+
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("Subscriptions");
                 });
@@ -265,6 +283,17 @@ namespace Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ApplicationCore.Models.Subscription", b =>
+                {
+                    b.HasOne("ApplicationCore.Models.Customer", "customer")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("customer");
+                });
+
             modelBuilder.Entity("Infrastructure.EF.UserEntity", b =>
                 {
                     b.OwnsOne("ApplicationCore.Models.UserDetails", "Details", b1 =>
@@ -286,7 +315,7 @@ namespace Infrastructure.Migrations
                                 new
                                 {
                                     UserEntityId = "7abf1057-5d1e-4efd-8166-27e4f6712ead",
-                                    CreatedAt = new DateTime(2025, 4, 8, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                                    CreatedAt = new DateTime(2025, 4, 8, 0, 0, 0, 0, DateTimeKind.Utc)
                                 });
                         });
 
@@ -343,6 +372,11 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ApplicationCore.Models.Customer", b =>
+                {
+                    b.Navigation("Subscriptions");
                 });
 #pragma warning restore 612, 618
         }

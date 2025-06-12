@@ -53,20 +53,15 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Subscriptions",
+                name: "Customers",
                 columns: table => new
                 {
                     customerId = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    createdDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    canceledDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    subscriptionCost = table.Column<int>(type: "integer", nullable: false),
-                    subscriptionInterval = table.Column<string>(type: "text", nullable: false),
-                    wassubscriptionPaid = table.Column<bool>(type: "boolean", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Subscriptions", x => x.customerId);
+                    table.PrimaryKey("PK_Customers", x => x.customerId);
                 });
 
             migrationBuilder.CreateTable(
@@ -175,10 +170,34 @@ namespace Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Subscriptions",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CustomerId = table.Column<int>(type: "integer", nullable: false),
+                    createdDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    canceledDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    subscriptionCost = table.Column<decimal>(type: "numeric", nullable: false),
+                    subscriptionInterval = table.Column<string>(type: "text", nullable: false),
+                    wassubscriptionPaid = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Subscriptions", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Subscriptions_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "customerId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "Details_CreatedAt", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "7abf1057-5d1e-4efd-8166-27e4f6712ead", new DateTime(2025, 4, 8, 0, 0, 0, 0, DateTimeKind.Unspecified), 0, "7abf1057-5d1e-4efd-8166-27e4f6712ead", "admin@wsei.edu.pl", false, false, null, "ADMIN@WSEI.EDU.PL", "ADMIN", "AQAAAAIAAYagAAAAENrUGpVMb8wzhY3UuvwWcNf3lOjlXx/7expp/8dhpQOjv0cnxuQKvx+hFtP96D+ceA==", null, false, "7abf1057-5d1e-4efd-8166-27e4f6712ead", false, "Admin" });
+                values: new object[] { "7abf1057-5d1e-4efd-8166-27e4f6712ead", new DateTime(2025, 4, 8, 0, 0, 0, 0, DateTimeKind.Utc), 0, "7abf1057-5d1e-4efd-8166-27e4f6712ead", "admin@wsei.edu.pl", false, false, null, "ADMIN@WSEI.EDU.PL", "ADMIN", "AQAAAAIAAYagAAAAENrUGpVMb8wzhY3UuvwWcNf3lOjlXx/7expp/8dhpQOjv0cnxuQKvx+hFtP96D+ceA==", null, false, "7abf1057-5d1e-4efd-8166-27e4f6712ead", false, "Admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -216,6 +235,11 @@ namespace Infrastructure.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Subscriptions_CustomerId",
+                table: "Subscriptions",
+                column: "CustomerId");
         }
 
         /// <inheritdoc />
@@ -244,6 +268,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Customers");
         }
     }
 }
