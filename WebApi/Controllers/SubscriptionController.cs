@@ -17,15 +17,23 @@ namespace WebApi.Controllers
             _context = context;
         }
 
-        // GET: api/Subscription
+        /// <summary>
+        /// Zwraca listę wszystkich subskrypcji z przypisanymi klientami.
+        /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<Subscription>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<Subscription>>> GetSubscriptions()
         {
             return await _context.Subscriptions.Include(s => s.customer).ToListAsync();
         }
 
-        // GET: api/Subscription/5
+        /// <summary>
+        /// Zwraca subskrypcję o podanym ID.
+        /// </summary>
+        /// <param name="id">ID subskrypcji</param>
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(Subscription), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Subscription>> GetSubscription(int id)
         {
             var subscription = await _context.Subscriptions.Include(s => s.customer).FirstOrDefaultAsync(s => s.id == id);
@@ -38,9 +46,16 @@ namespace WebApi.Controllers
             return subscription;
         }
 
-        // PUT: api/Subscription/5
+        /// <summary>
+        /// Aktualizuje istniejącą subskrypcję.
+        /// </summary>
+        /// <param name="id">ID subskrypcji</param>
+        /// <param name="subscription">Zaktualizowane dane subskrypcji</param>
         [Authorize]
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutSubscription(int id, Subscription subscription)
         {
             if (id != subscription.id)
@@ -69,9 +84,13 @@ namespace WebApi.Controllers
             return NoContent();
         }
 
-        // POST: api/Subscription
+        /// <summary>
+        /// Tworzy nową subskrypcję.
+        /// </summary>
+        /// <param name="subscription">Dane nowej subskrypcji</param>
         [Authorize]
         [HttpPost]
+        [ProducesResponseType(typeof(Subscription), StatusCodes.Status201Created)]
         public async Task<ActionResult<Subscription>> PostSubscription(Subscription subscription)
         {
             _context.Subscriptions.Add(subscription);
@@ -80,9 +99,14 @@ namespace WebApi.Controllers
             return CreatedAtAction("GetSubscription", new { id = subscription.id }, subscription);
         }
 
-        // DELETE: api/Subscription/5
+        /// <summary>
+        /// Usuwa subskrypcję o podanym ID.
+        /// </summary>
+        /// <param name="id">ID subskrypcji</param>
         [Authorize]
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteSubscription(int id)
         {
             var subscription = await _context.Subscriptions.FindAsync(id);
